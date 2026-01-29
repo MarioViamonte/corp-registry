@@ -8,6 +8,35 @@ interface CompanyDetailModalProps {
 }
 
 export const CompanyDetailModal: React.FC<CompanyDetailModalProps> = ({ empresa, onClose }) => {
+  const handleShare = async () => {
+    const text = `
+*${empresa.nome}*
+CNPJ: ${empresa.cnpj || 'Não informado'}
+Setor: ${empresa.setor}
+Localização: ${empresa.localizacao}
+
+${empresa.descricao}
+    `.trim();
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: empresa.nome,
+          text: text,
+        });
+      } catch (err) {
+        console.error('Error sharing', err);
+      }
+    } else {
+      try {
+        await navigator.clipboard.writeText(text);
+        alert('Dados da empresa copiados para a área de transferência!');
+      } catch (err) {
+        console.error('Failed to copy', err);
+      }
+    }
+  };
+
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
       <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
@@ -25,11 +54,18 @@ export const CompanyDetailModal: React.FC<CompanyDetailModalProps> = ({ empresa,
               </div>
               <h3 className="text-lg font-bold">Ficha Cadastral da Unidade</h3>
             </div>
-            <button onClick={onClose} className="hover:bg-white/20 p-2 rounded-full transition-colors">
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
+            <div className="flex items-center gap-2">
+              <button onClick={handleShare} className="hover:bg-white/20 p-2 rounded-full transition-colors" title="Compartilhar">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                </svg>
+              </button>
+              <button onClick={onClose} className="hover:bg-white/20 p-2 rounded-full transition-colors">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
           </div>
 
           <div className="bg-white px-8 py-10">
@@ -47,8 +83,8 @@ export const CompanyDetailModal: React.FC<CompanyDetailModalProps> = ({ empresa,
                     {empresa.setor}
                   </span>
                   <span className={`px-3 py-1 text-[10px] font-black rounded-lg uppercase tracking-wider border ${empresa.extra?.tipo === 'Matriz'
-                      ? 'bg-green-50 text-green-700 border-green-100'
-                      : 'bg-amber-50 text-amber-700 border-amber-100'
+                    ? 'bg-green-50 text-green-700 border-green-100'
+                    : 'bg-amber-50 text-amber-700 border-amber-100'
                     }`}>
                     {empresa.extra?.tipo || 'Filial'}
                   </span>
