@@ -63,7 +63,7 @@ const App: React.FC = () => {
               <span className="text-2xl font-black text-indigo-600 leading-none">{empresas.length}</span>
             </div>
             <div className="bg-white px-5 py-3 rounded-2xl shadow-sm border border-slate-200 flex flex-col justify-center">
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Setores</span>
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Segmentos</span>
               <span className="text-2xl font-black text-indigo-600 leading-none">{sectorsCount}</span>
             </div>
           </div>
