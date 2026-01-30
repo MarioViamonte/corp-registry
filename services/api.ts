@@ -91,6 +91,7 @@ function mapSetor(name: string): string {
   if (n.includes('CONSTRUTORA') || n.includes('CONSTRUCAO')) return 'Construção Civil';
   if (n.includes('AGROPECUARIA') || n.includes('FAZENDA')) return 'Agropecuária';
   if (n.includes('NUTRICAO ANIMAL')) return 'Nutrição Animal';
+  if (n.includes('MOBILIDADE') || n.includes('MOBILIZE')) return 'Locação de Veículos';
   if (n.includes('LOCACOES') || n.includes('LOCADORA')) return 'Locação de Máquinas';
   if (n.includes('ENERGIA') || n.includes('ZERO CARBONO') || n.includes('FOTOVOLTAICAS') || n.includes('ENERGIZE')) return 'Energia Renovável';
   if (n.includes('DISTRIBUIDORA') || n.includes('ASFALTO')) return 'Indústria & Distribuição';
@@ -108,6 +109,7 @@ const getLogo = (name: string): string | undefined => {
   if (n.includes('LOCACOES') || n.includes('LOCADORA')) return '/logos/VF LOCACOES.png';
   if (n.includes('FRONTEIRA')) return '/logos/FRONTEIRA.png';
   if (n.includes('MOD ')) return '/logos/MOD.png';
+  if (n.includes('VSB')) return '/logos/VSB.png';
   if (n.includes('PARTICIPACOES') || n.includes('GESTAO')) return '/logos/VF PAR.pdf.png';
   if (n.includes('VIA NORTE SUL')) return '/logos/VIA NORTE SUL.pdf.png';
   if (n.includes('ENERGIA') || n.includes('ZERO CARBONO') || n.includes('FOTOVOLTAICAS') || n.includes('ENERGIZE')) return '/logos/Energize-C.png';
