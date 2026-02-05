@@ -57,7 +57,7 @@ function mapSetor(name: string): string {
   if (n.includes('LOCACOES') || n.includes('LOCADORA')) return 'Locação de Máquinas';
   if (n.includes('ENERGIA') || n.includes('ZERO CARBONO') || n.includes('FOTOVOLTAICAS') || n.includes('ENERGIZE')) return 'Energia Renovável';
   if (n.includes('DISTRIBUIDORA') || n.includes('ASFALTO')) return 'Indústria & Distribuição';
-  if (n.includes('TRANSPORTADORA') || n.includes('RODOVIAS')) return 'Transporte & Logística';
+  if (n.includes('TRANSPORTADORA') || n.includes('RODOVIAS')) return 'Concessão de Rodovias';
   if (n.includes('PARTICIPACOES') || n.includes('GESTAO')) return 'Holding & Gestão';
   return 'Geral';
 }
