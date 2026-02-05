@@ -124,32 +124,35 @@ export const fetchEmpresas = async (): Promise<Empresa[]> => {
   const headers = lines[0].split(';');
   const dataLines = lines.slice(1);
 
-  return dataLines.filter(line => line.trim()).map((line) => {
-    const values = line.split(';');
-    const row: any = {};
-    headers.forEach((header, index) => {
-      row[header] = values[index];
-    });
+  return dataLines
+    .filter(line => line.trim())
+    .filter(line => !line.toUpperCase().includes('SCP'))
+    .map((line) => {
+      const values = line.split(';');
+      const row: any = {};
+      headers.forEach((header, index) => {
+        row[header] = values[index];
+      });
 
-    return {
-      id: parseInt(row['CD_FILIAL']),
-      nome: row['NOME_FILIAL'] || row['NOME'],
-      setor: mapSetor(row['NOME_FILIAL'] || row['NOME']),
-      localizacao: `${row['CIDADE']} - ${row['ESTADO']}`,
-      cnpj: row['CNPJ'],
-      descricao: `Unidade operacional em ${row['CIDADE']}.`,
-      numero_funcionarios: Math.floor(Math.random() * 50) + 10,
-      faturamento_anual: undefined,
-      site: undefined,
-      logo_url: getLogo(row['NOME_FILIAL'] || row['NOME']),
-      extra: {
-        cep: row['CEP'],
-        regiao: row['REGIÃO'],
-        tipo: row['U_Matriz'] === 'S' ? 'Matriz' : 'Filial',
-        endereco_completo: `${row['ENDEREÇO_1']} ${row['ENDEREÇO_2']}, ${row['ENDEREÇO_3']} ${row['ENDEREÇO_4'] || ''}`.trim(),
-        municipio: row['CIDADE'],
-        uf: row['ESTADO']
-      }
-    } as Empresa;
-  });
+      return {
+        id: parseInt(row['CD_FILIAL']),
+        nome: row['NOME_FILIAL'] || row['NOME'],
+        setor: mapSetor(row['NOME_FILIAL'] || row['NOME']),
+        localizacao: `${row['CIDADE']} - ${row['ESTADO']}`,
+        cnpj: row['CNPJ'],
+        descricao: `Unidade operacional em ${row['CIDADE']}.`,
+        numero_funcionarios: Math.floor(Math.random() * 50) + 10,
+        faturamento_anual: undefined,
+        site: undefined,
+        logo_url: getLogo(row['NOME_FILIAL'] || row['NOME']),
+        extra: {
+          cep: row['CEP'],
+          regiao: row['REGIÃO'],
+          tipo: row['U_Matriz'] === 'S' ? 'Matriz' : 'Filial',
+          endereco_completo: `${row['ENDEREÇO_1']} ${row['ENDEREÇO_2']}, ${row['ENDEREÇO_3']} ${row['ENDEREÇO_4'] || ''}`.trim(),
+          municipio: row['CIDADE'],
+          uf: row['ESTADO']
+        }
+      } as Empresa;
+    });
 };
