@@ -127,10 +127,16 @@ ${empresa.descricao}
                   <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-3">Dados Fiscais</label>
                   <div className="bg-slate-900 p-6 rounded-2xl shadow-xl shadow-slate-200">
                     <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1">CNPJ de Faturamento</span>
-                    <p className="text-white font-mono text-xl tracking-wider">{empresa.cnpj || 'ISENTO / NÃO INF.'}</p>
+                    <p className="text-white font-mono text-xl tracking-wider mb-4">{empresa.cnpj || 'ISENTO / NÃO INF.'}</p>
+
+                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1">Inscrição Estadual</span>
+                    <p className="text-white font-mono text-base tracking-wider">{empresa.extra?.inscricao_estadual || 'ISENTO'}</p>
+
                     <div className="mt-4 pt-4 border-t border-white/10 flex justify-between items-center">
                       <span className="text-[10px] font-bold text-slate-500 uppercase">Status</span>
-                      <span className="text-green-400 text-[10px] font-black uppercase">Ativo no ERP</span>
+                      <span className={`text-[10px] font-black uppercase ${empresa.extra?.situacao?.toUpperCase() === 'ATIVO' || empresa.extra?.situacao?.toUpperCase() === 'HABILITADO' ? 'text-green-400' : 'text-red-400'}`}>
+                        {empresa.extra?.situacao || 'SITUAÇÃO DESCONHECIDA'}
+                      </span>
                     </div>
                   </div>
                 </div>

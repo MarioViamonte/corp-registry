@@ -1,8 +1,4 @@
-
-import { Empresa } from '../types';
-
-// CSV data from Empresas.csv
-const RAW_CSV = `CD_FILIAL;NOME_FILIAL;BPLFrName;ENDERECO;AddressFr;UserSign2;UpdateDate;DflWhs;DflTaxCode;CNPJ;INSCRICAO_MUNICIPAL;PrefState;ENDEREÇO_1;ENDEREÇO_2;ENDEREÇO_3;ENDEREÇO_4;CEP;REGIÃO;CIDADE;ESTADO;County;PAÍS;NOME;DfltResWhs;U_Matriz;U_MatrizGrupo;U_SKILL_CNPJSCP;U_VF_Medicao;InscricaoEstadual;Situacao
+CD_FILIAL;NOME_FILIAL;BPLFrName;ENDERECO;AddressFr;UserSign2;UpdateDate;DflWhs;DflTaxCode;CNPJ;INSCRICAO_MUNICIPAL;PrefState;ENDEREÇO_1;ENDEREÇO_2;ENDEREÇO_3;ENDEREÇO_4;CEP;REGIÃO;CIDADE;ESTADO;County;PAÍS;NOME;DfltResWhs;U_Matriz;U_MatrizGrupo;U_SKILL_CNPJSCP;U_VF_Medicao;InscricaoEstadual;Situacao
 66;MEDALHA NUTRICAO ANIMAL LTDA;;"GLBTARUMA,S/N 78.245-000-VILA BELA DA SANTISSIMA TRINDADE-MT BRASIL";;54;26/09/2025 00:00;EN67;200;54.337.819/0001-78;140487530;MT;GLB;TARUMA;S/N;;78.245-000;ZONA RURAL;VILA BELA DA SANTISSIMA TRINDADE;MT;2415;BR;MEDALHA NUTRICAO ANIMAL;EN67;S;;;N;14.048.753-0;Ativo
 58;AGROPECUARIA JATOBA LTDA;;"RODBR 163 KM 1123,S/N 68.379-200-ALTAMIRA-PA BRASIL";;54;15/01/2025 00:00;EN59;54;52.979.392/0001-86;159269342;PA;ROD;BR 163 KM 1123;S/N;ADT 65 KM PELA VICINAL TONELLI;68.379-200;ZONA RURAL;ALTAMIRA;PA;2424;BR;FAZENDA JATOBA;EN59;S;;;N;15.926.934-2;Ativo
 9;V. F. GOMES AGROPECUARIA LTDA;;"GLBTARUMA,S/N 78.245-000-Vila Bela da Santíssima Trindade-MT BRASIL";;54;13/10/2025 00:00;EN54;54;45.061.767/0001-69;14.019.336-7;MT;GLB;TARUMA;S/N;;78.245-000;ZONA RURAL;Vila Bela da Santíssima Trindade;MT;2415;BR;FAZENDA MEDALHA MILAGROSA;EN54;S;;;N;14.019.336-7;Ativo
@@ -24,6 +20,7 @@ const RAW_CSV = `CD_FILIAL;NOME_FILIAL;BPLFrName;ENDERECO;AddressFr;UserSign2;Up
 59;MOBILIDADE ZERO CARBONO - LOCADORA DE VEICULOS ELETRICOS LTDA-FILIAL DF;;"QUADRACL 116 NORTE BL E,S/N 70.773-590-BRASILIA-DF BRASIL";;17;01/05/2025 00:00;EN60;1101;51.423.290/0002-06;;;QUADRA;CL 116 NORTE BL E;S/N;BLOCO I N 33 SALA 207 PARTE N 105;70.773-590;BRASILIA;BRASILIA;DF;803;BR;MOBILIZE-C;EN60;N;55;;N;Isento;Ativo
 54;V. F. GOMES CONSTRUTORA LTDA - FILIAL SP;;"RUAAUGUSTA,101 01.305-000-SAO PAULO-SP BRASIL";;17;04/05/2025 00:00;EN53;601;13.495.966/0007-84;138.821.971.117;SP;Rua;AUGUSTA;101;ANDAR 10 SALA 1017;01.305-000;CONSOLACAO;SAO PAULO;SP;5344;BR;V. F. GOMES CONSTRUTORA - FILIAL SP;EN53;N;1;;N;138.821.971.117;Ativo
 60;V. F. GOMES CONSTRUTORA LTDA - FILIAL MS;;"RUAPIRAPUTANGA,349 79.045-110-CAMPO GRANDE-MS BRASIL";;17;04/05/2025 00:00;EN61;601;13.495.966/0008-65;28.499.439-1;MS;Rua;PIRAPUTANGA;349;QUADRA10 LOTE 05;79.045-110;JARDIM NOROESTE;CAMPO GRANDE;MS;2217;BR;V. F. GOMES CONSTRUTORA - FILIAL MS;EN61;N;1;;N;28.499.439-1;Ativo
+2;Principal;;;;17;23/09/2024 00:00;;;;;;;;;;;;;;;;;;N;;;N;;
 68;FRONTEIRA DISTRIBUIDORA DE ASFALTO LTDA;;"RODBR 163,SN 68190000-ITAITUBA-PA BRASIL";;54;19/08/2025 00:00;EN69;305;57.228.585/0001-19;159941008;PA;ROD;BR 163;SN;"km:30;lote:gleba 07";68190000;Campo Verde;Itaituba;PA;2474;BR;FRONTEIRA DISTRIBUIDORA DE ASFALTO;EN69;S;;;N;15.994.100-8;Ativo
 13;ENERGIA ZERO CARBONO - USINAS FOTOVOLTAICAS LTDA;;"AVGOVERNADOR JAIME CAMPOS,SN 78.295-000-Indiavaí-MT BRASIL";;54;30/09/2025 00:00;EN12;1120;48.341.669/0001-73;Isento;;AV;GOVERNADOR JAIME CAMPOS;SN;;78.295-000;Centro;Indiavaí;MT;2325;BR;ENERGIZE-C;EN12;S;;;N;Isento;Ativo
 12;V. F. GOMES PARTICIPACOES LTDA;;"AVDAS EMBAUBAS,1100 78550-222-SINOP-MT BRASIL";;17;09/05/2025 00:00;EN11;1014;48.134.418/0001-18;Isento;;AV;DAS EMBAUBAS;1100;TERREO SALA 1;78550-222;Setor Comercial;Sinop;MT;2403;BR;V. F. GOMES PARTICIPACOES;EN11;S;;;N;Isento;Ativo
@@ -43,77 +40,4 @@ const RAW_CSV = `CD_FILIAL;NOME_FILIAL;BPLFrName;ENDERECO;AddressFr;UserSign2;Up
 80;ENERGIA ZERO CARBONO ELETROPOSTOS LTDA FILIAL CUIABÁ;;"RUADAS LARANJEIRAS (VL JUSSARA),SN 78010740-CUIABÁ-MT BRASIL";;146;09/01/2026 00:00;EN81;623;51.430.673/0004-65;;;Rua;DAS LARANJEIRAS (VL JUSSARA);SN;LOTE 13 QUADRA02;78010740;LARANJEIRAS (VL JUSSARA);CUIABÁ;MT;2313;BR;;EN81;N;;;N;Isento;Ativo
 81;FRONTEIRA TRANSPORTADORA DE ASFALTO E DERIVADOS DE PETROLEO LTDA FILIAL RO;;"RUAABUNA,3412 78.820-862-PORTO VELHO-RO BRASIL";;146;09/01/2026 00:00;EN82;887;57.483.494/0003-91;00000007490500;RO;Rua;ABUNA;3412;SALA 001;78.820-862;ABUNA;Porto Velho;RO;3884;BR;FRONTEIRA TRANSPORTE FILIAL RO;EN82;N;;;N;7490500;Ativo
 56;ENERGIA ZERO CARBONO ELETROPOSTOS LTDA;;"AVDAS EMBAUBAS,1100 78.550-222-SINOP-MT BRASIL";;146;09/01/2026 00:00;EN57;623;51.430.673/0001-12;;;AV;DAS EMBAUBAS;1100;TERREOSALA 3;78.550-222;Setor Comercial;Sinop;MT;2403;BR;ENERGIZE - C ELETROPOSTOS;EN57;S;;;N;Isento;Ativo
-90;VIA NORTE SUL RODOVIAS S/A;;"AV DAS EMBAUBAS,1100 78.550-222-SINOP-MT BRASIL";;17;12/02/2021 00:00;EN90;601;40.832.664/0001-31;Isento;MT;AV;DAS EMBAUBAS;1100;ANDAR 01;78.550-222;SETOR COMERCIAL;SINOP;MT;2403;BR;VIA NORTE SUL RODOVIAS S/A;EN90;S;;;N;;`;
-
-function mapSetor(name: string): string {
-  const n = (name || '').toUpperCase();
-  if (n.includes('CONSTRUTORA') || n.includes('CONSTRUCAO')) return 'Construção Civil';
-  if (n.includes('AGROPECUARIA') || n.includes('FAZENDA')) return 'Agropecuária';
-  if (n.includes('NUTRICAO ANIMAL')) return 'Nutrição Animal';
-  if (n.includes('MOBILIDADE') || n.includes('MOBILIZE')) return 'Locação de Veículos';
-  if (n.includes('LOCACOES') || n.includes('LOCADORA')) return 'Locação de Máquinas';
-  if (n.includes('ENERGIA') || n.includes('ZERO CARBONO') || n.includes('FOTOVOLTAICAS') || n.includes('ENERGIZE')) return 'Energia Renovável';
-  if (n.includes('DISTRIBUIDORA') || n.includes('ASFALTO')) return 'Indústria & Distribuição';
-  if (n.includes('TRANSPORTADORA') || n.includes('RODOVIAS')) return 'Transporte & Logística';
-  if (n.includes('PARTICIPACOES') || n.includes('GESTAO')) return 'Holding & Gestão';
-  return 'Geral';
-}
-
-const getLogo = (name: string): string | undefined => {
-  const n = name.toUpperCase();
-  if (n.includes('MEDALHA')) return '/logos/MEDALHA NUTRIÇÃO ANIMAL.png';
-  if (n.includes('AGROPECUARIA') || n.includes('FAZENDA JATOBA')) return '/logos/AGROPECUARIA.png';
-  if (n.includes('CONSTRUTORA') || n.includes('CONSTRUCAO')) return '/logos/CONSTRUTORA.png';
-  if (n.includes('MOBILIDADE') || n.includes('MOBILIZE') || n.includes('MOBILIZEC')) return '/logos/MOBILIZEC.png';
-  if (n.includes('LOCACOES') || n.includes('LOCADORA')) return '/logos/VF LOCACOES.png';
-  if (n.includes('FRONTEIRA')) return '/logos/FRONTEIRA.png';
-  if (n.includes('MOD ')) return '/logos/MOD.png';
-  if (n.includes('VSB')) return '/logos/VSB.png';
-  if (n.includes('PARTICIPACOES') || n.includes('GESTAO')) return '/logos/VF PAR.pdf.png';
-  if (n.includes('VIA NORTE SUL')) return '/logos/VIA NORTE SUL.pdf.png';
-  if (n.includes('ENERGIA') || n.includes('ZERO CARBONO') || n.includes('FOTOVOLTAICAS') || n.includes('ENERGIZE')) return '/logos/Energize-C.png';
-  return undefined;
-};
-
-export const fetchEmpresas = async (): Promise<Empresa[]> => {
-  // Simulating network delay
-  await new Promise(resolve => setTimeout(resolve, 400));
-
-  const lines = RAW_CSV.split('\n');
-  const headers = lines[0].split(';');
-  const dataLines = lines.slice(1);
-
-  return dataLines
-    .filter(line => line.trim())
-    .filter(line => !line.toUpperCase().includes('SCP'))
-    .map((line) => {
-      const values = line.split(';');
-      const row: any = {};
-      headers.forEach((header, index) => {
-        row[header] = values[index];
-      });
-
-      return {
-        id: parseInt(row['CD_FILIAL']),
-        nome: row['NOME_FILIAL'] || row['NOME'],
-        setor: mapSetor(row['NOME_FILIAL'] || row['NOME']),
-        localizacao: `${row['CIDADE']} - ${row['ESTADO']}`,
-        cnpj: row['CNPJ'],
-        descricao: `Unidade operacional em ${row['CIDADE']}.`,
-        numero_funcionarios: Math.floor(Math.random() * 50) + 10,
-        faturamento_anual: undefined,
-        site: undefined,
-        logo_url: getLogo(row['NOME_FILIAL'] || row['NOME']),
-        extra: {
-          cep: row['CEP'],
-          regiao: row['REGIÃO'],
-          tipo: row['U_Matriz'] === 'S' ? 'Matriz' : 'Filial',
-          endereco_completo: `${row['ENDEREÇO_1']} ${row['ENDEREÇO_2']}, ${row['ENDEREÇO_3']} ${row['ENDEREÇO_4'] || ''}`.trim(),
-          municipio: row['CIDADE'],
-          uf: row['ESTADO'],
-          inscricao_estadual: row['InscricaoEstadual'],
-          situacao: row['Situacao']
-        }
-      } as Empresa;
-    });
-};
+90;VIA NORTE SUL RODOVIAS S/A;;"AV DAS EMBAUBAS,1100 78.550-222-SINOP-MT BRASIL";;17;12/02/2021 00:00;EN90;601;40.832.664/0001-31;Isento;MT;AV;DAS EMBAUBAS;1100;ANDAR 01;78.550-222;SETOR COMERCIAL;SINOP;MT;2403;BR;VIA NORTE SUL RODOVIAS S/A;EN90;S;;;N;;

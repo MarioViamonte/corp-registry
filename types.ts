@@ -18,6 +18,8 @@ export interface Empresa {
     endereco_completo?: string;
     municipio?: string;
     uf?: string;
+    inscricao_estadual?: string;
+    situacao?: string;
   };
   [key: string]: any;
 }
