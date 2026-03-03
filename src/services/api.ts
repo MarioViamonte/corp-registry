@@ -1,6 +1,6 @@
 
-import { Empresa } from '../types';
-import { supabase } from '../src/services/supabaseClient.js';
+import { Empresa } from '../../types';
+import { supabase } from './supabaseClient.js';
 
 // ---------------------------------------------------------------------------
 // Helpers

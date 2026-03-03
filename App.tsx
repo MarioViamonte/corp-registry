@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Empresa } from './types';
-import { fetchEmpresas } from './services/api';
+import { fetchEmpresas } from './src/services/api';
 import { Layout } from './components/Layout';
 import { CompanyCard } from './components/CompanyCard';
 import { CompanyDetailModal } from './components/CompanyDetailModal';

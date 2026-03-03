@@ -1,0 +1,22 @@
+<!-- Test file para debugar Supabase - Copie e cole no console do navegador -->
+<script type="module">
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.98.0/+esm';
+
+  const url = 'https://jqwtiyejqzbkmgxtqtfd.supabase.co';
+  const key = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impxd3RpeWVqcXpia21neHRxdGZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU0Nzg1MzksImV4cCI6MjA4MTA1NDUzOX0.YtQlhIjAA99a02a1ZC5lYrAzQJN5r-y_CkKAmYuGmcs';
+
+  console.log('🔍 Testando Supabase...');
+  
+  const supabase = createClient(url, key);
+  
+  const { data, error } = await supabase
+    .from('CORPREGISTRY')
+    .select('CD_FILIAL, NOME_FILIAL, ESTADO')
+    .limit(5);
+
+  if (error) {
+    console.error('❌ ERRO:', error);
+  } else {
+    console.log('✅ SUCESSO! Registros:', data);
+  }
+</script>
