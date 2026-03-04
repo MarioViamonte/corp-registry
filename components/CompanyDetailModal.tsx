@@ -1,6 +1,7 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Empresa } from '../types';
+import { downloadCertidao } from '../src/services/certidaoService';
 
 interface CompanyDetailModalProps {
   empresa: Empresa;
@@ -8,6 +9,9 @@ interface CompanyDetailModalProps {
 }
 
 export const CompanyDetailModal: React.FC<CompanyDetailModalProps> = ({ empresa, onClose }) => {
+  const [isDownloading, setIsDownloading] = useState(false);
+  const [downloadError, setDownloadError] = useState<string | null>(null);
+
   const handleShare = async () => {
     const text = `
 *${empresa.nome}*
@@ -35,6 +39,20 @@ ${empresa.descricao}
         console.error('Failed to copy', err);
       }
     }
+  };
+
+  const handleDownloadCertidao = async () => {
+    setIsDownloading(true);
+    setDownloadError(null);
+
+    const { success, error } = await downloadCertidao(empresa.id);
+
+    if (!success) {
+      setDownloadError(error || 'Erro ao fazer download');
+      setTimeout(() => setDownloadError(null), 5000);
+    }
+
+    setIsDownloading(false);
   };
 
   return (
@@ -153,12 +171,40 @@ ${empresa.descricao}
 
           <div className="bg-slate-50 px-8 py-6 flex justify-between items-center border-t border-slate-100">
             <span className="text-[10px] font-bold text-slate-400">Última sincronização: {new Date().toLocaleDateString()}</span>
-            <button
-              onClick={onClose}
-              className="px-8 py-3 bg-white border border-slate-200 rounded-2xl text-slate-900 font-black text-xs hover:bg-slate-50 transition-all shadow-sm active:scale-95"
-            >
-              Fechar Detalhes
-            </button>
+            <div className="flex gap-3 items-center">
+              {downloadError && (
+                <span className="text-xs text-red-600 font-medium animate-pulse">
+                  ⚠️ {downloadError}
+                </span>
+              )}
+              <button
+                onClick={handleDownloadCertidao}
+                disabled={isDownloading}
+                className="px-6 py-3 bg-indigo-600 text-white border border-indigo-700 rounded-2xl font-black text-xs hover:bg-indigo-700 transition-all shadow-sm active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                {isDownloading ? (
+                  <>
+                    <svg className="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    Baixando...
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 16v-4m0 0V8m0 4h4m-4 0H8m6-11a9 9 0 110 18 9 9 0 010-18z" />
+                    </svg>
+                    Exportar Certidão
+                  </>
+                )}
+              </button>
+              <button
+                onClick={onClose}
+                className="px-8 py-3 bg-white border border-slate-200 rounded-2xl text-slate-900 font-black text-xs hover:bg-slate-50 transition-all shadow-sm active:scale-95"
+              >
+                Fechar Detalhes
+              </button>
+            </div>
           </div>
         </div>
       </div>
