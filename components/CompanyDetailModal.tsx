@@ -78,7 +78,7 @@ export const CompanyDetailModal: React.FC<CompanyDetailModalProps> = ({ empresa,
                 onClick={handleShare}
                 disabled={isSharing}
                 className="hover:bg-white/20 p-2 rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed" 
-                title="Compartilhar dados + PDF (WhatsApp, Email, etc)"
+                title="Compartilhar dados + PDF"
               >
                 {isSharing ? (
                   <svg className="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -191,7 +191,7 @@ export const CompanyDetailModal: React.FC<CompanyDetailModalProps> = ({ empresa,
               )}
               {copiedSuccess && (
                 <span className="text-xs text-green-600 font-medium animate-pulse">
-                  ✅ Pronto para compartilhar!
+                  ✅ Legenda copiada + PDF baixado!
                 </span>
               )}
               <button
