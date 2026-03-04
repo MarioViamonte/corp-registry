@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Empresa } from '../types';
-import { downloadCertidao, copyEmpresaToClipboard } from '../src/services/certidaoService';
+import { downloadCertidao, copyEmpresaToClipboard, shareCertidao } from '../src/services/certidaoService';
 
 interface CompanyDetailModalProps {
   empresa: Empresa;
@@ -12,34 +12,25 @@ export const CompanyDetailModal: React.FC<CompanyDetailModalProps> = ({ empresa,
   const [isDownloading, setIsDownloading] = useState(false);
   const [downloadError, setDownloadError] = useState<string | null>(null);
   const [copiedSuccess, setCopiedSuccess] = useState(false);
+  const [isSharing, setIsSharing] = useState(false);
 
   const handleShare = async () => {
-    const text = `
-*${empresa.nome}*
-CNPJ: ${empresa.cnpj || 'Não informado'}
-Setor: ${empresa.setor}
-Localização: ${empresa.localizacao}
+    setIsSharing(true);
+    setDownloadError(null);
+    setCopiedSuccess(false);
 
-${empresa.descricao}
-    `.trim();
+    // Compartilhar dados da empresa e PDF
+    const { success, error } = await shareCertidao(empresa, empresa.id);
 
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: empresa.nome,
-          text: text,
-        });
-      } catch (err) {
-        console.error('Error sharing', err);
-      }
+    if (success) {
+      setCopiedSuccess(true);
+      setTimeout(() => setCopiedSuccess(false), 3000);
     } else {
-      try {
-        await navigator.clipboard.writeText(text);
-        alert('Dados da empresa copiados para a área de transferência!');
-      } catch (err) {
-        console.error('Failed to copy', err);
-      }
+      setDownloadError(error || 'Erro ao compartilhar');
+      setTimeout(() => setDownloadError(null), 5000);
     }
+
+    setIsSharing(false);
   };
 
   const handleDownloadCertidao = async () => {
@@ -83,10 +74,21 @@ ${empresa.descricao}
               <h3 className="text-lg font-bold">Ficha Cadastral da Unidade</h3>
             </div>
             <div className="flex items-center gap-2">
-              <button onClick={handleShare} className="hover:bg-white/20 p-2 rounded-full transition-colors" title="Compartilhar">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-                </svg>
+              <button 
+                onClick={handleShare}
+                disabled={isSharing}
+                className="hover:bg-white/20 p-2 rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed" 
+                title="Compartilhar dados + PDF (WhatsApp, Email, etc)"
+              >
+                {isSharing ? (
+                  <svg className="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                ) : (
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                  </svg>
+                )}
               </button>
               <button onClick={onClose} className="hover:bg-white/20 p-2 rounded-full transition-colors">
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -189,7 +191,7 @@ ${empresa.descricao}
               )}
               {copiedSuccess && (
                 <span className="text-xs text-green-600 font-medium animate-pulse">
-                  ✅ Dados copiados para clipboard!
+                  ✅ Pronto para compartilhar!
                 </span>
               )}
               <button

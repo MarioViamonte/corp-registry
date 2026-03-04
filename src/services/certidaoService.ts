@@ -14,22 +14,24 @@ export function formatEmpresaInfo(empresa: Empresa): string {
     '📋 FICHA CADASTRAL DA UNIDADE',
     '',
     `🏢 ${empresa.nome}`,
-    `Setor: ${empresa.setor}`,
-    empresa.tipo ? `Tipo: ${empresa.tipo}` : '',
-    empresa.id ? `ID do Sistema: ${empresa.id}` : '',
+    empresa.setor ? `📊 Setor: ${empresa.setor}` : '',
+    empresa.extra?.tipo ? `🏭 Tipo: ${empresa.extra.tipo}` : '',
+    empresa.localizacao ? `📍 Localização: ${empresa.localizacao}` : '',
+    empresa.id ? `🆔 ID do Sistema: ${empresa.id}` : '',
     '',
-    '📍 ENDEREÇO OPERACIONAL',
-    `${empresa.endereco}`,
-    empresa.cep ? `CEP: ${empresa.cep}` : '',
-    `${empresa.municipio} - ${empresa.uf}`,
+    '🏠 ENDEREÇO OPERACIONAL',
+    empresa.extra?.endereco_completo ? `${empresa.extra.endereco_completo}` : `${empresa.endereco}`,
+    empresa.extra?.regiao ? `${empresa.extra.regiao}` : '',
+    empresa.extra?.cep ? `CEP: ${empresa.extra.cep}` : empresa.cep ? `CEP: ${empresa.cep}` : '',
+    `${empresa.extra?.municipio || empresa.municipio || '---'} - ${empresa.extra?.uf || empresa.uf || '--'}`,
     '',
     '🏛️ DADOS FISCAIS',
-    `CNPJ: ${empresa.cnpj}`,
-    empresa.inscricao_estadual ? `Inscrição Estadual: ${empresa.inscricao_estadual}` : '',
-    `Situação: ${empresa.situacao}`,
+    `CNPJ: ${empresa.cnpj || 'ISENTO / NÃO INF.'}`,
+    empresa.extra?.inscricao_estadual ? `Inscrição Estadual: ${empresa.extra.inscricao_estadual}` : 'Inscrição Estadual: ISENTO',
+    `Status: ${empresa.extra?.situacao || empresa.situacao || 'SITUAÇÃO DESCONHECIDA'}`,
     '',
-    '📝 OBSERVAÇÕES',
-    empresa.observacoes || 'Nenhuma observação registrada',
+    empresa.descricao ? '📝 DESCRIÇÃO' : '',
+    empresa.descricao ? `${empresa.descricao}` : '',
   ];
 
   return lines.filter(line => line !== '').join('\n');
@@ -53,14 +55,13 @@ export async function copyEmpresaToClipboard(empresa: Empresa): Promise<boolean>
 }
 
 /**
- * Faz download de um certificado/documento da filial
- * Busca o caminho do arquivo na tabela doc_corp e faz download do Storage
+ * Obtém o PDF como Blob para compartilhamento
  * @param {number} cdFilial - Código da filial / ID da empresa
- * @returns {Promise<{ success: boolean, error?: string }>}
+ * @returns {Promise<{ blob?: Blob, fileName?: string, error?: string }>}
  */
-export async function downloadCertidao(cdFilial: number | string) {
+export async function getPdfBlob(cdFilial: number | string) {
   try {
-    console.log('[certidaoService] Iniciando download para ID:', cdFilial);
+    console.log('[certidaoService] Obtendo PDF para compartilhamento:', cdFilial);
     
     // Step 1: Buscar o caminho do arquivo na tabela doc_corp
     const { data: docData, error: docError } = await supabase
@@ -72,7 +73,6 @@ export async function downloadCertidao(cdFilial: number | string) {
     if (docError || !docData) {
       console.error('[certidaoService] Documento não encontrado:', docError?.message);
       return { 
-        success: false, 
         error: 'Documento não encontrado para esta unidade'
       };
     }
@@ -80,7 +80,7 @@ export async function downloadCertidao(cdFilial: number | string) {
     const documentPath = docData.documento_path;
     console.log('[certidaoService] Caminho do documento:', documentPath);
 
-    // Step 2: Obter URL pública do arquivo (bucket é público)
+    // Step 2: Obter URL pública do arquivo
     const { data: publicUrlData } = supabase
       .storage
       .from(BUCKET_NAME)
@@ -89,7 +89,6 @@ export async function downloadCertidao(cdFilial: number | string) {
     if (!publicUrlData?.publicUrl) {
       console.error('[certidaoService] ❌ Erro ao gerar URL pública');
       return { 
-        success: false, 
         error: 'Erro ao gerar URL do arquivo'
       };
     }
@@ -105,15 +104,43 @@ export async function downloadCertidao(cdFilial: number | string) {
     }
 
     const blob = await response.blob();
-    
-    // Step 4: Extrair nome do arquivo do caminho
     const fileName = documentPath.split('/').pop() || `certidao-${cdFilial}.pdf`;
 
-    // Step 5: Disparar download no navegador
+    console.log('[certidaoService] ✅ PDF obtido:', fileName);
+    return { blob, fileName };
+
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Erro desconhecido';
+    console.error('[certidaoService] ❌ Erro ao obter PDF:', message);
+    return { 
+      error: message
+    };
+  }
+}
+
+/**
+ * Faz download de um certificado/documento da filial
+ * @param {number} cdFilial - Código da filial / ID da empresa
+ * @returns {Promise<{ success: boolean, error?: string }>}
+ */
+export async function downloadCertidao(cdFilial: number | string) {
+  try {
+    console.log('[certidaoService] Iniciando download para ID:', cdFilial);
+    
+    const { blob, fileName, error } = await getPdfBlob(cdFilial);
+
+    if (error || !blob) {
+      return { 
+        success: false, 
+        error: error || 'Erro ao obter arquivo'
+      };
+    }
+
+    // Disparar download no navegador
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = fileName;
+    link.download = fileName || 'documento.pdf';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -125,6 +152,74 @@ export async function downloadCertidao(cdFilial: number | string) {
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Erro desconhecido';
     console.error('[certidaoService] ❌ Erro:', message);
+    return { 
+      success: false, 
+      error: message
+    };
+  }
+}
+
+/**
+ * Compartilha os dados da empresa e PDF
+ * @param {Empresa} empresa - Dados da empresa
+ * @param {number} cdFilial - ID da empresa para buscar PDF
+ * @returns {Promise<{ success: boolean, error?: string }>}
+ */
+export async function shareCertidao(empresa: Empresa, cdFilial: number | string) {
+  try {
+    console.log('[certidaoService] Iniciando compartilhamento:', cdFilial);
+    
+    // Step 1: Copiar dados para clipboard
+    const copied = await copyEmpresaToClipboard(empresa);
+    
+    // Step 2: Obter PDF
+    const { blob, fileName, error } = await getPdfBlob(cdFilial);
+
+    if (error || !blob) {
+      return { 
+        success: false, 
+        error: error || 'Erro ao obter arquivo para compartilhamento'
+      };
+    }
+
+    // Step 3: Tentar compartilhar com Web Share API
+    if (navigator.share && navigator.canShare) {
+      try {
+        const file = new File([blob], fileName || 'documento.pdf', { type: 'application/pdf' });
+        
+        if (navigator.canShare({ files: [file] })) {
+          await navigator.share({
+            title: `Certidão - ${empresa.nome}`,
+            text: `Ficha Cadastral da Unidade:\n\n${formatEmpresaInfo(empresa)}`,
+            files: [file],
+          });
+          console.log('[certidaoService] ✅ Compartilhado via Web Share API');
+          return { success: true };
+        }
+      } catch (shareErr) {
+        if ((shareErr as Error).name !== 'AbortError') {
+          console.error('[certidaoService] Erro no Web Share:', shareErr);
+        }
+      }
+    }
+
+    // Step 4: Se não conseguir compartilhar, fazer download
+    console.log('[certidaoService] Web Share não disponível, fazendo download...');
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = fileName || 'documento.pdf';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+
+    console.log('[certidaoService] 📥 Arquivo preparado para compartilhamento');
+    return { success: true };
+
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Erro desconhecido';
+    console.error('[certidaoService] ❌ Erro ao compartilhar:', message);
     return { 
       success: false, 
       error: message
