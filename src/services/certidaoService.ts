@@ -1,7 +1,56 @@
 import { supabase } from './supabaseClient.js';
+import type { Empresa } from '../../types';
 
 const BUCKET_NAME = (import.meta as any).env.VITE_SUPABASE_BUCKET || 'Documentos';
 const DOC_TABLE = 'doc_corp';
+
+/**
+ * Formata as informações da empresa em um texto legível
+ * @param {Empresa} empresa - Dados da empresa
+ * @returns {string} Texto formatado
+ */
+export function formatEmpresaInfo(empresa: Empresa): string {
+  const lines = [
+    '📋 FICHA CADASTRAL DA UNIDADE',
+    '',
+    `🏢 ${empresa.nome}`,
+    `Setor: ${empresa.setor}`,
+    empresa.tipo ? `Tipo: ${empresa.tipo}` : '',
+    empresa.id ? `ID do Sistema: ${empresa.id}` : '',
+    '',
+    '📍 ENDEREÇO OPERACIONAL',
+    `${empresa.endereco}`,
+    empresa.cep ? `CEP: ${empresa.cep}` : '',
+    `${empresa.municipio} - ${empresa.uf}`,
+    '',
+    '🏛️ DADOS FISCAIS',
+    `CNPJ: ${empresa.cnpj}`,
+    empresa.inscricao_estadual ? `Inscrição Estadual: ${empresa.inscricao_estadual}` : '',
+    `Situação: ${empresa.situacao}`,
+    '',
+    '📝 OBSERVAÇÕES',
+    empresa.observacoes || 'Nenhuma observação registrada',
+  ];
+
+  return lines.filter(line => line !== '').join('\n');
+}
+
+/**
+ * Copia as informações da empresa para a clipboard
+ * @param {Empresa} empresa - Dados da empresa
+ * @returns {Promise<boolean>} True se conseguiu copiar
+ */
+export async function copyEmpresaToClipboard(empresa: Empresa): Promise<boolean> {
+  try {
+    const text = formatEmpresaInfo(empresa);
+    await navigator.clipboard.writeText(text);
+    console.log('[certidaoService] ✅ Dados copiados para clipboard');
+    return true;
+  } catch (err) {
+    console.error('[certidaoService] ❌ Erro ao copiar:', err);
+    return false;
+  }
+}
 
 /**
  * Faz download de um certificado/documento da filial

@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Empresa } from '../types';
-import { downloadCertidao } from '../src/services/certidaoService';
+import { downloadCertidao, copyEmpresaToClipboard } from '../src/services/certidaoService';
 
 interface CompanyDetailModalProps {
   empresa: Empresa;
@@ -11,6 +11,7 @@ interface CompanyDetailModalProps {
 export const CompanyDetailModal: React.FC<CompanyDetailModalProps> = ({ empresa, onClose }) => {
   const [isDownloading, setIsDownloading] = useState(false);
   const [downloadError, setDownloadError] = useState<string | null>(null);
+  const [copiedSuccess, setCopiedSuccess] = useState(false);
 
   const handleShare = async () => {
     const text = `
@@ -44,7 +45,16 @@ ${empresa.descricao}
   const handleDownloadCertidao = async () => {
     setIsDownloading(true);
     setDownloadError(null);
+    setCopiedSuccess(false);
 
+    // Step 1: Copiar dados da empresa para clipboard
+    const copied = await copyEmpresaToClipboard(empresa);
+    if (copied) {
+      setCopiedSuccess(true);
+      setTimeout(() => setCopiedSuccess(false), 3000);
+    }
+
+    // Step 2: Fazer download do PDF
     const { success, error } = await downloadCertidao(empresa.id);
 
     if (!success) {
@@ -175,6 +185,11 @@ ${empresa.descricao}
               {downloadError && (
                 <span className="text-xs text-red-600 font-medium animate-pulse">
                   ⚠️ {downloadError}
+                </span>
+              )}
+              {copiedSuccess && (
+                <span className="text-xs text-green-600 font-medium animate-pulse">
+                  ✅ Dados copiados para clipboard!
                 </span>
               )}
               <button
