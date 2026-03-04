@@ -169,10 +169,7 @@ export async function shareCertidao(empresa: Empresa, cdFilial: number | string)
   try {
     console.log('[certidaoService] Iniciando compartilhamento:', cdFilial);
     
-    // Step 1: Copiar dados para clipboard
-    const copied = await copyEmpresaToClipboard(empresa);
-    
-    // Step 2: Obter PDF
+    // Step 1: Obter PDF
     const { blob, fileName, error } = await getPdfBlob(cdFilial);
 
     if (error || !blob) {
@@ -182,18 +179,24 @@ export async function shareCertidao(empresa: Empresa, cdFilial: number | string)
       };
     }
 
-    // Step 3: Tentar compartilhar com Web Share API
+    // Step 2: Preparar dados da empresa como legenda
+    const legenda = formatEmpresaInfo(empresa);
+
+    // Step 3: Tentar compartilhar com Web Share API (com arquivo e texto)
     if (navigator.share && navigator.canShare) {
       try {
         const file = new File([blob], fileName || 'documento.pdf', { type: 'application/pdf' });
         
-        if (navigator.canShare({ files: [file] })) {
-          await navigator.share({
-            title: `Certidão - ${empresa.nome}`,
-            text: `Ficha Cadastral da Unidade:\n\n${formatEmpresaInfo(empresa)}`,
-            files: [file],
-          });
-          console.log('[certidaoService] ✅ Compartilhado via Web Share API');
+        const shareData = {
+          title: `Certidão - ${empresa.nome}`,
+          text: legenda,
+          files: [file],
+        };
+
+        // Verificar se pode compartilhar com arquivo
+        if (navigator.canShare(shareData)) {
+          await navigator.share(shareData);
+          console.log('[certidaoService] ✅ Compartilhado com arquivo e legenda');
           return { success: true };
         }
       } catch (shareErr) {
@@ -203,7 +206,7 @@ export async function shareCertidao(empresa: Empresa, cdFilial: number | string)
       }
     }
 
-    // Step 4: Se não conseguir compartilhar, fazer download
+    // Step 4: Se não conseguir compartilhar, fazer download e avisar
     console.log('[certidaoService] Web Share não disponível, fazendo download...');
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -214,7 +217,7 @@ export async function shareCertidao(empresa: Empresa, cdFilial: number | string)
     document.body.removeChild(link);
     window.URL.revokeObjectURL(url);
 
-    console.log('[certidaoService] 📥 Arquivo preparado para compartilhamento');
+    console.log('[certidaoService] 📥 Download realizado - Cole os dados manualmente to share');
     return { success: true };
 
   } catch (err) {
