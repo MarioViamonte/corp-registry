@@ -182,21 +182,29 @@ export async function shareCertidao(empresa: Empresa, cdFilial: number | string)
     // Step 2: Preparar dados da empresa como legenda
     const legenda = formatEmpresaInfo(empresa);
 
-    // Step 3: Tentar compartilhar com Web Share API (com arquivo e texto)
+    // Step 3: Tentar compartilhar com Web Share API
     if (navigator.share && navigator.canShare) {
       try {
         const file = new File([blob], fileName || 'documento.pdf', { type: 'application/pdf' });
         
-        const shareData = {
+        const shareData: any = {
           title: `Certidão - ${empresa.nome}`,
           text: legenda,
           files: [file],
         };
 
-        // Verificar se pode compartilhar com arquivo
+        // Verificar se pode compartilhar
         if (navigator.canShare(shareData)) {
           await navigator.share(shareData);
-          console.log('[certidaoService] ✅ Compartilhado com arquivo e legenda');
+          console.log('[certidaoService] ✅ Compartilhado com Legenda + PDF');
+          return { success: true };
+        } else {
+          // Se não pode compartilhar com arquivo, tenta só com texto
+          console.warn('[certidaoService] Não pode compartilhar arquivo, tentando só com texto...');
+          await navigator.share({
+            title: `Certidão - ${empresa.nome}`,
+            text: legenda,
+          });
           return { success: true };
         }
       } catch (shareErr) {
@@ -206,8 +214,8 @@ export async function shareCertidao(empresa: Empresa, cdFilial: number | string)
       }
     }
 
-    // Step 4: Se não conseguir compartilhar, fazer download e avisar
-    console.log('[certidaoService] Web Share não disponível, fazendo download...');
+    // Step 4: Se não conseguir compartilhar nativo, fazer download do PDF
+    console.log('[certidaoService] Web Share não disponível, fazendo download do PDF...');
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
@@ -217,7 +225,14 @@ export async function shareCertidao(empresa: Empresa, cdFilial: number | string)
     document.body.removeChild(link);
     window.URL.revokeObjectURL(url);
 
-    console.log('[certidaoService] 📥 Download realizado - Cole os dados manualmente to share');
+    // Também copia a legenda para clipboard
+    try {
+      await navigator.clipboard.writeText(legenda);
+      console.log('[certidaoService] ✅ Dados copiados para clipboard | PDF baixado');
+    } catch (copyErr) {
+      console.error('[certidaoService] Erro ao copiar:', copyErr);
+    }
+
     return { success: true };
 
   } catch (err) {
